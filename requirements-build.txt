@@ -1,0 +1,6 @@
+# Build Requirements (Python 3.13 kompatibel)
+PyQt6>=6.7.0
+pyserial>=3.5
+pyqtgraph>=0.13.0
+numpy>=1.26.0
+pyinstaller>=6.10.0

@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DPS-150 Control</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #4CAF50;
+        }
+        
+        .card {
+            background: #2a2a2a;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .card h2 {
+            margin-bottom: 15px;
+            font-size: 18px;
+            color: #4CAF50;
+        }
+        
+        .status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #f44336;
+            margin-left: 10px;
+        }
+        
+        .status-indicator.connected {
+            background: #4CAF50;
+        }
+        
+        .btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #45a049;
+        }
+        
+        .btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        
+        .btn-danger {
+            background: #f44336;
+        }
+        
+        .btn-danger:hover {
+            background: #da190b;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background: #333;
+            color: #fff;
+            font-size: 14px;
+        }
+        
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .metric {
+            background: #333;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        
+        .metric-label {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 5px;
+        }
+        
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        
+        .metric-unit {
+            font-size: 14px;
+            color: #999;
+            margin-left: 5px;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .controls .btn {
+            flex: 1;
+        }
+        
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #444;
+            border-radius: 4px;
+            background: #333;
+            color: #fff;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        #liveChart {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔌 FNIRSI DPS-150 Control</h1>
+        
+        <!-- Connection Card -->
+        <div class="card">
+            <h2>Connection</h2>
+            <div class="status">
+                <span id="status-text">Not connected</span>
+                <div id="status-indicator" class="status-indicator"></div>
+            </div>
+            <select id="port-select">
+                <option value="">Select port...</option>
+            </select>
+            <div class="controls">
+                <button id="btn-connect" class="btn" onclick="connect()">Connect</button>
+                <button id="btn-disconnect" class="btn btn-danger" onclick="disconnect()" disabled>Disconnect</button>
+            </div>
+        </div>
+        
+        <!-- Measurements Card -->
+        <div class="card">
+            <h2>Measurements</h2>
+            <div class="metrics">
+                <div class="metric">
+                    <div class="metric-label">Voltage</div>
+                    <div class="metric-value">
+                        <span id="voltage">0.00</span><span class="metric-unit">V</span>
+                    </div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Current</div>
+                    <div class="metric-value">
+                        <span id="current">0.000</span><span class="metric-unit">A</span>
+                    </div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Power</div>
+                    <div class="metric-value">
+                        <span id="power">0.00</span><span class="metric-unit">W</span>
+                    </div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Temperature</div>
+                    <div class="metric-value">
+                        <span id="temperature">0</span><span class="metric-unit">°C</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Control Card -->
+        <div class="card">
+            <h2>Control</h2>
+            <div class="input-group">
+                <label for="set-voltage">Voltage (V)</label>
+                <input type="number" id="set-voltage" min="0" max="150" step="0.1" value="0">
+            </div>
+            <div class="input-group">
+                <label for="set-current">Current (A)</label>
+                <input type="number" id="set-current" min="0" max="15" step="0.01" value="0">
+            </div>
+            <div class="controls">
+                <button class="btn" onclick="setVoltage()" id="btn-set-voltage" disabled>Set Voltage</button>
+                <button class="btn" onclick="setCurrent()" id="btn-set-current" disabled>Set Current</button>
+            </div>
+        </div>
+        
+        <!-- Output Control Card -->
+        <div class="card">
+            <h2>Output</h2>
+            <div class="controls">
+                <button class="btn" onclick="enableOutput()" id="btn-enable" disabled>Enable</button>
+                <button class="btn btn-danger" onclick="disableOutput()" id="btn-disable" disabled>Disable</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Live Chart</h2>
+            <canvas id="liveChart" height="180"></canvas>
+        </div>
+    </div>
+    
+    <!-- Load Chart.js locally from Pico -->
+    <script src="/static/chart.min.js"></script>
+
+    <script>
+        let connected = false;
+        let pollInterval = null;
+
+        /* --- Chart.js Setup --- */
+        const ctx = document.getElementById('liveChart').getContext('2d');
+
+        let chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'Voltage (V)',
+                        borderColor: '#4CAF50',
+                        borderWidth: 2,
+                        data: [],
+                        fill: false,
+                        tension: 0.2
+                    },
+                    {
+                        label: 'Current (A)',
+                        borderColor: '#f44336',
+                        borderWidth: 2,
+                        data: [],
+                        fill: false,
+                        tension: 0.2
+                    }
+                ]
+            },
+            options: {
+                animation: false,
+                responsive: true,
+                scales: {
+                    x: { ticks: { color: "#aaa" } },
+                    y: { ticks: { color: "#aaa" } }
+                }
+            }
+        });
+
+        function resizeCanvas() {
+            const canvas = ctx.canvas;
+            canvas.width = canvas.clientWidth;    // echte Breite der card
+            canvas.height = 180;                  // gewünschte Höhe in Pixeln
+            chart.update();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        
+        // Load ports on page load
+        window.addEventListener('load', function() {
+            console.log('Page loaded, fetching ports...');
+            loadPorts();
+        });
+        window.addEventListener('online', () => loadPorts());
+        function loadPorts() {
+            console.log('loadPorts() called');
+            fetch('/api/ports')
+                .then(response => {
+                    console.log('Response received:', response.status);
+                    return response.json();
+                })
+                .then(ports => {
+                    console.log('Ports data:', ports);
+                    const select = document.getElementById('port-select');
+                    if (!select) {
+                        console.error('port-select element not found!');
+                        return;
+                    }
+                    select.innerHTML = '<option value="">Select port...</option>';
+                    if (Array.isArray(ports)) {
+                        ports.forEach(port => {
+                            console.log('Adding port:', port);
+                            const option = document.createElement('option');
+                            option.value = port.port;
+                            option.textContent = port.description || port.port;
+                            if (port.selected) {
+                                option.selected = true;
+                            }
+                            select.appendChild(option);
+                        });
+                        console.log('Ports loaded successfully');
+                    } else {
+                        console.error('Ports is not an array:', ports);
+                    }
+                })
+                .catch(err => {
+                    console.error('Error loading ports:', err);
+                    alert('Error loading ports: ' + err.message);
+                });
+        }
+        
+        function connect() {
+            const port = document.getElementById('port-select').value;
+            if (!port) {
+                alert('Please select a port');
+                return;
+            }
+            
+            console.log('Connecting to port:', port);
+            
+            fetch('/api/connect', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({port: port})
+            })
+            .then(response => {
+                console.log('Connect response status:', response.status);
+                if (!response.ok) {
+                    throw new Error('HTTP error ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Connect data:', data);
+                if (data.error) {
+                    alert('Data-Error: ' + data.error);
+                } else {
+                    connected = true;
+                    updateUI();
+                    startPolling();
+                }
+            })
+            .catch(err => {
+                console.error('Connection error:', err);
+                alert('Connection error: ' + err.message);
+            });
+        }
+        
+        function disconnect() {
+            fetch('/api/disconnect', {method: 'POST'})
+                .then(response => response.json())
+                .then(data => {
+                    connected = false;
+                    stopPolling();
+                    updateUI();
+                })
+                .catch(err => console.error('Disconnect error:', err));
+        }
+        
+        function setVoltage() {
+            const voltage = parseFloat(document.getElementById('set-voltage').value);
+            fetch('/api/set/voltage', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({"value": voltage.toString()})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) alert('Fehler: ' + data.error);
+            })
+            .catch(err => alert('Fehler: ' + err));
+        }
+        
+        function setCurrent() {
+            const current = parseFloat(document.getElementById('set-current').value);
+            fetch('/api/set/current', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({"value": current.toString()})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) alert('Fehler: ' + data.error);
+            })
+            .catch(err => alert('Fehler: ' + err));
+        }
+        
+        function enableOutput() {
+            fetch('/api/output/enable', {method: 'POST'})
+                .then(response => response.json())
+                .catch(err => alert('Fehler: ' + err));
+        }
+        
+        function disableOutput() {
+            fetch('/api/output/disable', {method: 'POST'})
+                .then(response => response.json())
+                .catch(err => alert('Fehler: ' + err));
+        }
+        
+        function startPolling() {
+            pollInterval = setInterval(pollData, 500);
+        }
+        
+        function stopPolling() {
+            if (pollInterval) {
+                clearInterval(pollInterval);
+                pollInterval = null;
+            }
+        }
+        
+        function pollData() {
+            fetch('/api/data', { cache: 'no-store' })
+                .then(r => r.ok ? r : Promise.reject('HTTP ' + r.status))
+                .then(r => r.json())
+                .then(updateData)
+                .catch(_ => {});
+        }
+        
+        function updateData(data) {
+
+            /* updating UI metrics as before */
+            if (data.outputVoltage !== undefined) {
+                document.getElementById('voltage').textContent = data.outputVoltage.toFixed(2);
+            }
+            if (data.outputCurrent !== undefined) {
+                document.getElementById('current').textContent = data.outputCurrent.toFixed(3);
+            }
+            if (data.outputPower !== undefined) {
+                document.getElementById('power').textContent = data.outputPower.toFixed(2);
+            }
+            if (data.temperature !== undefined) {
+                document.getElementById('temperature').textContent = Math.round(data.temperature);
+            }
+
+            /* --- NEW: Feed live chart --- */
+
+            let now = new Date().toLocaleTimeString();
+
+            chart.data.labels.push(now);
+            chart.data.datasets[0].data.push(data.outputVoltage ?? 0);
+            chart.data.datasets[1].data.push(data.outputCurrent ?? 0);
+
+            // Keep only last 50 samples
+            if (chart.data.labels.length > 50) {
+                chart.data.labels.shift();
+                chart.data.datasets[0].data.shift();
+                chart.data.datasets[1].data.shift();
+            }
+
+            chart.update();
+        }
+
+        function updateUI() {
+            const statusText = document.getElementById('status-text');
+            const statusIndicator = document.getElementById('status-indicator');
+            const btnConnect = document.getElementById('btn-connect');
+            const btnDisconnect = document.getElementById('btn-disconnect');
+            const btnSetVoltage = document.getElementById('btn-set-voltage');
+            const btnSetCurrent = document.getElementById('btn-set-current');
+            const btnEnable = document.getElementById('btn-enable');
+            const btnDisable = document.getElementById('btn-disable');
+            
+            if (connected) {
+                statusText.textContent = 'Connected';
+                statusIndicator.classList.add('connected');
+                btnConnect.disabled = true;
+                btnDisconnect.disabled = false;
+                btnSetVoltage.disabled = false;
+                btnSetCurrent.disabled = false;
+                btnEnable.disabled = false;
+                btnDisable.disabled = false;
+            } else {
+                statusText.textContent = 'Not connected';
+                statusIndicator.classList.remove('connected');
+                btnConnect.disabled = false;
+                btnDisconnect.disabled = true;
+                btnSetVoltage.disabled = true;
+                btnSetCurrent.disabled = true;
+                btnEnable.disabled = true;
+                btnDisable.disabled = true;
+            }
+        }
+    </script>
+</body>
+</html>

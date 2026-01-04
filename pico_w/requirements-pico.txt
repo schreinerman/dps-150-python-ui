@@ -1,0 +1,11 @@
+# Upload tools for deploying to Raspberry Pi Pico W
+# Install with: pip install -r requirements-pico.txt
+
+# Option 1: ampy (works on all platforms)
+adafruit-ampy>=1.1.0
+
+# Option 2: rshell (recommended for Linux/Mac)
+rshell>=0.0.31
+
+# Required for serial port detection
+pyserial>=3.5

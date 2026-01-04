@@ -1,0 +1,11 @@
+# Requirements für die GUI-Anwendung (Python 3.13 kompatibel)
+PyQt6>=6.7.0
+pyserial>=3.5
+pyqtgraph>=0.13.0
+numpy>=1.26.0
+
+# Optionale Web-Abhängigkeiten (falls Web-UI weiter verwendet wird)
+Flask>=3.0.0
+flask-socketio>=5.3.5
+python-socketio>=5.10.0
+simple-websocket>=1.0.0
