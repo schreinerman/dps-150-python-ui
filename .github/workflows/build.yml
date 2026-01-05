@@ -21,16 +21,12 @@ jobs:
             python-version: '3.13'
           - os: windows-latest
             python-version: '3.13'
-          - os: macos-latest
+          - os: macos-13  # Intel runner
             python-version: '3.13'
-            arch: universal2
-          # Optional: Separate builds for Intel and ARM
-          # - os: macos-13  # Intel runner
-          #   python-version: '3.13'
-          #   arch: x86_64
-          # - os: macos-14  # ARM runner
-          #   python-version: '3.13'
-          #   arch: arm64
+            arch: x86_64
+          - os: macos-latest  # ARM runner (macos-14)
+            python-version: '3.13'
+            arch: arm64
     
     steps:
     - name: Checkout code
@@ -68,12 +64,7 @@ jobs:
     
     - name: Build application (macOS)
       if: runner.os == 'macOS'
-      run: |
-        if [ -n "${{ matrix.arch }}" ]; then
-          bash build.sh ${{ matrix.arch }}
-        else
-          bash build.sh
-        fi
+      run: bash build.sh
     
     - name: Build application (Windows)
       if: runner.os == 'Windows'
@@ -92,9 +83,7 @@ jobs:
           if [ "${{ matrix.arch }}" == "x86_64" ]; then
             ARCH_SUFFIX="-Intel"
           elif [ "${{ matrix.arch }}" == "arm64" ]; then
-            ARCH_SUFFIX="-ARM"
-          elif [ "${{ matrix.arch }}" == "universal2" ]; then
-            ARCH_SUFFIX="-Universal"
+            ARCH_SUFFIX="-AppleSilicon"
           fi
           echo "name=DPS150-Control-macOS${ARCH_SUFFIX}" >> $GITHUB_OUTPUT
           echo "path=dist/DPS150-Control.app" >> $GITHUB_OUTPUT
@@ -142,7 +131,8 @@ jobs:
       with:
         files: |
           artifacts/DPS150-Control-Linux/DPS150-Control
-          artifacts/DPS150-Control-macOS/DPS150-Control.app.zip
+          artifacts/DPS150-Control-macOS-Intel/DPS150-Control.app.zip
+          artifacts/DPS150-Control-macOS-AppleSilicon/DPS150-Control.app.zip
           artifacts/DPS150-Control-Windows/DPS150-Control.exe
         draft: false
         prerelease: false

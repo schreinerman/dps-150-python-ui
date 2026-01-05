@@ -76,10 +76,7 @@ def build_app(target_arch=None):
         if target_arch:
             args.append(f'--target-arch={target_arch}')
             print(f"  → Building for architecture: {target_arch}")
-        else:
-            # Default to universal2 for maximum compatibility
-            args.append('--target-arch=universal2')
-            print(f"  → Building Universal2 binary (Intel + ARM)")
+        # Note: By default, PyInstaller builds for the native architecture
     elif plat == "windows":
         # On Windows an icon could be specified here
         # args.extend(['--icon=icon.ico'])
