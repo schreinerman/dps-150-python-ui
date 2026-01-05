@@ -43,7 +43,13 @@ echo "✓ Dependencies installed"
 echo ""
 echo "🔨 Starting build process..."
 echo ""
-python build.py
+
+# Check if architecture argument is provided
+if [ -n "$1" ]; then
+    python build.py "$1"
+else
+    python build.py
+fi
 
 echo ""
 echo "=== ✅ Build completed! ==="

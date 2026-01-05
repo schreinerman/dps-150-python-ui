@@ -70,8 +70,7 @@ jobs:
       if: runner.os == 'macOS'
       run: |
         if [ -n "${{ matrix.arch }}" ]; then
-          source venv/bin/activate
-          python build.py ${{ matrix.arch }}
+          bash build.sh ${{ matrix.arch }}
         else
           bash build.sh
         fi
