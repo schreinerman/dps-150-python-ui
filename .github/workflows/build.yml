@@ -102,16 +102,23 @@ jobs:
     
     - name: Create macOS archive
       if: runner.os == 'macOS'
+      shell: bash
       run: |
         cd dist
-        zip -r DPS150-Control.app.zip DPS150-Control.app
+        ARCH_SUFFIX=""
+        if [ "${{ matrix.arch }}" == "x86_64" ]; then
+          ARCH_SUFFIX="-Intel"
+        elif [ "${{ matrix.arch }}" == "arm64" ]; then
+          ARCH_SUFFIX="-AppleSilicon"
+        fi
+        zip -r DPS150-Control${ARCH_SUFFIX}.app.zip DPS150-Control.app
     
     - name: Upload artifact (macOS)
       if: runner.os == 'macOS'
       uses: actions/upload-artifact@v4
       with:
         name: ${{ steps.artifact-name.outputs.name }}
-        path: dist/DPS150-Control.app.zip
+        path: dist/DPS150-Control*.app.zip
         retention-days: 30
 
   release:
@@ -128,13 +135,18 @@ jobs:
       with:
         path: artifacts
     
+    - name: Debug - List downloaded artifacts
+      run: |
+        echo "=== Downloaded artifacts structure ==="
+        ls -laR artifacts/
+    
     - name: Create Release
       uses: softprops/action-gh-release@v1
       with:
         files: |
           artifacts/DPS150-Control-Linux/DPS150-Control
-          artifacts/DPS150-Control-macOS-Intel/DPS150-Control.app.zip
-          artifacts/DPS150-Control-macOS-AppleSilicon/DPS150-Control.app.zip
+          artifacts/DPS150-Control-macOS-Intel/*.app.zip
+          artifacts/DPS150-Control-macOS-AppleSilicon/*.app.zip
           artifacts/DPS150-Control-Windows/DPS150-Control.exe
         draft: false
         prerelease: false
