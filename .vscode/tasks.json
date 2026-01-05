@@ -1,0 +1,138 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run Web Server",
+            "type": "shell",
+            "command": "python3",
+            "args": [
+                "app.py"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "group": "none",
+            "isBackground": true
+        },
+        {
+            "label": "Run Desktop App",
+            "type": "shell",
+            "command": "python3",
+            "args": [
+                "gui_app.py"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "group": "none"
+        },
+        {
+            "label": "Run CLI",
+            "type": "shell",
+            "command": "python3",
+            "args": [
+                "cli.py"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "group": "none"
+        },
+        {
+            "label": "Build App (macOS/Linux)",
+            "type": "shell",
+            "command": "./build.sh",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "windows": {
+                "command": "build.bat"
+            }
+        },
+        {
+            "label": "Build App (Python)",
+            "type": "shell",
+            "command": "python3",
+            "args": [
+                "build.py"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "group": "build"
+        },
+        {
+            "label": "Install Dependencies (Web)",
+            "type": "shell",
+            "command": "pip3",
+            "args": [
+                "install",
+                "-r",
+                "requirements.txt"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Install Dependencies (Desktop)",
+            "type": "shell",
+            "command": "pip3",
+            "args": [
+                "install",
+                "-r",
+                "requirements-gui.txt"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Install Dependencies (Build)",
+            "type": "shell",
+            "command": "pip3",
+            "args": [
+                "install",
+                "-r",
+                "requirements-build.txt"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "Clean Build Artifacts",
+            "type": "shell",
+            "command": "python3",
+            "args": [
+                "build.py",
+                "--clean"
+            ],
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            }
+        }
+    ]
+}

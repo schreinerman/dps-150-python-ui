@@ -33,7 +33,7 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         sudo apt-get update
-        sudo apt-get install -y libxcb-xinerama0 libxcb-cursor0 libxkbcommon-x11-0
+        sudo apt-get install -y bash libxcb-xinerama0 libxcb-cursor0 libxkbcommon-x11-0
         pip install --upgrade pip
         pip install -r requirements-build.txt
     
@@ -50,7 +50,14 @@ jobs:
         pip install -r requirements-build.txt
     
     - name: Build application
-      run: python build.py
+      run: |
+        if [ "${{ runner.os }}" == "Linux" ]; then
+          bash build.sh
+        elif [ "${{ runner.os }}" == "macOS" ]; then
+          bash build.sh
+        elif [ "${{ runner.os }}" == "Windows" ]; then
+          build.bat
+        fi
     
     - name: Prepare artifact name
       id: artifact-name
