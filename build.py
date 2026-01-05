@@ -34,10 +34,18 @@ def clean_build():
     if os.path.exists(spec_file):
         os.remove(spec_file)
 
-def build_app():
-    """Builds the native application"""
+def build_app(target_arch=None):
+    """Builds the native application
+    
+    Args:
+        target_arch: Target architecture for macOS builds.
+                    Options: 'universal2' (Intel+ARM), 'x86_64' (Intel), 'arm64' (Apple Silicon)
+                    Default: None (uses system architecture)
+    """
     plat = get_platform_spec()
-    print(f"Building application for {plat}...")
+    
+    arch_info = f" ({target_arch})" if target_arch else ""
+    print(f"Building application for {plat}{arch_info}...")
     
     # PyInstaller arguments (without 'pyinstaller' at the start)
     args = [
@@ -64,7 +72,14 @@ def build_app():
     # Platform-specific adjustments
     if plat == "macos":
         # On macOS no --icon=NONE, that leads to errors
-        pass
+        # Add target architecture if specified
+        if target_arch:
+            args.append(f'--target-arch={target_arch}')
+            print(f"  → Building for architecture: {target_arch}")
+        else:
+            # Default to universal2 for maximum compatibility
+            args.append('--target-arch=universal2')
+            print(f"  → Building Universal2 binary (Intel + ARM)")
     elif plat == "windows":
         # On Windows an icon could be specified here
         # args.extend(['--icon=icon.ico'])
@@ -119,9 +134,18 @@ def main():
         print("   Or use: ./build.sh (macOS/Linux) or build.bat (Windows)")
         sys.exit(1)
     
+    # Parse command line arguments
+    target_arch = None
+    if len(sys.argv) > 1:
+        arg = sys.argv[1]
+        if arg in ['--arch', '-a'] and len(sys.argv) > 2:
+            target_arch = sys.argv[2]
+        elif arg in ['universal2', 'x86_64', 'arm64']:
+            target_arch = arg
+    
     # Perform build
     clean_build()
-    build_app()
+    build_app(target_arch)
     
     print("\n=== ✅ Build successful! ===")
 
