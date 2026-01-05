@@ -12,36 +12,36 @@ echo ""
 
 # Check Python
 if ! command -v python3 &> /dev/null; then
-    echo "❌ Error: Python 3 is not installed"
+    echo "[ERROR] Python 3 is not installed"
     exit 1
 fi
 
-echo "✓ Python found: $(python3 --version)"
+echo "[OK] Python found: $(python3 --version)"
 echo ""
 
 # Create virtual environment if not present
 if [ ! -d "venv" ]; then
-    echo "📦 Creating virtual environment..."
+    echo "Creating virtual environment..."
     python3 -m venv venv
-    echo "✓ Virtual environment created"
+    echo "[OK] Virtual environment created"
 else
-    echo "✓ Virtual environment already exists"
+    echo "[OK] Virtual environment already exists"
 fi
 
 echo ""
 
 # Activate virtual environment
-echo "🔌 Activating virtual environment..."
+echo "Activating virtual environment..."
 source venv/bin/activate
 
 # Install dependencies
-echo "📥 Installing dependencies..."
+echo "Installing dependencies..."
 pip install --upgrade pip --quiet
 pip install -r requirements-build.txt --quiet
-echo "✓ Dependencies installed"
+echo "[OK] Dependencies installed"
 
 echo ""
-echo "🔨 Starting build process..."
+echo "Starting build process..."
 echo ""
 
 # Check if architecture argument is provided
@@ -52,12 +52,12 @@ else
 fi
 
 echo ""
-echo "=== ✅ Build completed! ==="
-echo "📂 The application is in the 'dist' folder"
+echo "=== [SUCCESS] Build completed! ==="
+echo "The application is in the 'dist' folder"
 if [ "$(uname)" = "Darwin" ]; then
-    echo "   → dist/DPS150-Control.app"
+    echo "   -> dist/DPS150-Control.app"
 elif [ "$(uname)" = "Linux" ]; then
-    echo "   → dist/DPS150-Control"
+    echo "   -> dist/DPS150-Control"
 fi
 echo ""
 

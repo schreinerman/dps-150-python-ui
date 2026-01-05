@@ -75,7 +75,7 @@ def build_app(target_arch=None):
         # Add target architecture if specified
         if target_arch:
             args.append(f'--target-arch={target_arch}')
-            print(f"  → Building for architecture: {target_arch}")
+            print(f"  -> Building for architecture: {target_arch}")
         # Note: By default, PyInstaller builds for the native architecture
     elif plat == "windows":
         # On Windows an icon could be specified here
@@ -86,15 +86,15 @@ def build_app(target_arch=None):
     import PyInstaller.__main__
     PyInstaller.__main__.run(args)
     
-    print(f"\n✓ Build completed!")
+    print(f"\n[OK] Build completed!")
     print(f"The application is located in the 'dist' folder")
     
     if plat == "macos":
-        print(f"  → dist/DPS150-Control.app")
+        print(f"  -> dist/DPS150-Control.app")
     elif plat == "windows":
-        print(f"  → dist/DPS150-Control.exe")
+        print(f"  -> dist/DPS150-Control.exe")
     else:
-        print(f"  → dist/DPS150-Control")
+        print(f"  -> dist/DPS150-Control")
 
 def check_venv():
     """Checks if script is running in venv"""
@@ -103,7 +103,7 @@ def check_venv():
     )
     
     if not in_venv:
-        print("⚠️  Warning: Script is not running in a virtual environment!")
+        print("[WARNING] Script is not running in a virtual environment!")
         print("   Recommended: Use build.sh (macOS/Linux) or build.bat (Windows)")
         print()
         response = input("Continue anyway? (y/N): ")
@@ -112,7 +112,7 @@ def check_venv():
             sys.exit(0)
         print()
     else:
-        print("✓ Running in virtual environment")
+        print("[OK] Running in virtual environment")
         print()
 
 def main():
@@ -126,7 +126,7 @@ def main():
     try:
         import PyInstaller
     except ImportError:
-        print("❌ Error: PyInstaller is not installed.")
+        print("[ERROR] PyInstaller is not installed.")
         print("   Install it with: pip install pyinstaller")
         print("   Or use: ./build.sh (macOS/Linux) or build.bat (Windows)")
         sys.exit(1)
@@ -144,7 +144,7 @@ def main():
     clean_build()
     build_app(target_arch)
     
-    print("\n=== ✅ Build successful! ===")
+    print("\n=== [SUCCESS] Build successful! ===")
 
 if __name__ == '__main__':
     main()
