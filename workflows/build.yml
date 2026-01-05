@@ -50,6 +50,7 @@ jobs:
         pip install -r requirements-build.txt
     
     - name: Build application
+      shell: bash
       run: |
         if [ "${{ runner.os }}" == "Linux" ]; then
           bash build.sh
